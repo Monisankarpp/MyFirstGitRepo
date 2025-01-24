@@ -1,11 +1,9 @@
-
 const form = document.getElementById('form');
 const userName = document.getElementById('username');
 const email = document.getElementById('email');
 const phoneNumber = document.getElementById('phonenumber');
 const password = document.getElementById('password');
 const cpassword = document.getElementById('cpassword');
-
 
 //now i add event
 form.addEventListener('submit',(event)=>{
@@ -32,12 +30,13 @@ form.addEventListener('submit',(event)=>{
   sessionStorage.setItem("Phone Number",phoneNumberVal);
   sessionStorage.setItem("Password",passwordVal);
   sessionStorage.setItem("Confirm Password",cpasswordVal);
+
+  redirect();
 })
 
-
 // email validate function
-const isEmail = (emailVal)=> {
-  let atSymbol=emailVal.indexOf('@');
+const isEmail = (emailVal) => {
+  let atSymbol = emailVal.indexOf('@');
   if(atSymbol < 1){
     return false;
   }
@@ -47,9 +46,8 @@ const isEmail = (emailVal)=> {
   return true;
 }
 
-
 //define validate function start
-const validate = ()=> {
+const validate = () => {
   const usernameVal = userName.value.trim();
   const emailVal = email.value.trim();
   const phonenumberVal = phoneNumber.value.trim();
@@ -58,9 +56,9 @@ const validate = ()=> {
 
 
   // validate username
-  if (usernameVal ===''){
+  if (usernameVal === ''){
     setErrorMsg(userName,'Username cannot be blank');
-  }else if(usernameVal.length<=3){
+  }else if(usernameVal.length <= 3){
     setErrorMsg(userName,'Username must be more than 3 character');
   }else{
     setSuccessMsg(userName);
@@ -78,7 +76,7 @@ const validate = ()=> {
   // validate phone
   if (phonenumberVal === ''){
     setErrorMsg(phoneNumber,'phone number cannot be blank');
-  }else if(phonenumberVal.length!==10){
+  }else if(phonenumberVal.length !== 10){
     setErrorMsg(phoneNumber,'not a valid phone number');
   }else{
     setSuccessMsg(phoneNumber);
@@ -87,7 +85,7 @@ const validate = ()=> {
   // validate password
   if (passwordVal === ''){
     setErrorMsg(password,'password cannot be blank');
-  }else if(passwordVal.length<=7){
+  }else if(passwordVal.length <= 7){
     setErrorMsg(password,'password must be 8 character');
   }else{
     setSuccessMsg(password);
@@ -96,7 +94,7 @@ const validate = ()=> {
   // validate confirm password
   if (cpasswordVal === ''){
     setErrorMsg(cpassword,'confirm password cannot be blank');
-  }else if(cpasswordVal!==passwordVal){
+  }else if(cpasswordVal !== passwordVal){
     setErrorMsg(cpassword,'confirm password doesnnot match');
   }else{
     setSuccessMsg(cpassword);
@@ -104,20 +102,23 @@ const validate = ()=> {
 }
 // validate function end here
 
-
 // setErrorMsg function start
 function setErrorMsg(input,errormsgs){
   const formControl = input.parentElement;
-  const small=formControl.querySelector('small');
-  formControl.className='form-control error';
-  small.innerText=errormsgs;
+  const small = formControl.querySelector('small');
+  formControl.className = 'form-control error';
+  small.innerText = errormsgs;
 }
 // setErrorMsg function end here 
 
-
 // setSuccessMsg function 
 function setSuccessMsg(input){
-  const formControl=input.parentElement;
+  const formControl = input.parentElement;
   formControl.className = 'form-control success';
 }
 // setSuccessMsg function end here
+
+// This function redirect the page into another page
+function redirect(){
+  window.location.href = "http://127.0.0.1:5500/LoginForm/index.html";
+}
