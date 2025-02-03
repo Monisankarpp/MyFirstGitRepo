@@ -51,6 +51,7 @@ let invalidChars = [
   "-",
   "+",
   "e",
+  ".",
 ];
 
 inputBox.addEventListener("keydown", function (e) {

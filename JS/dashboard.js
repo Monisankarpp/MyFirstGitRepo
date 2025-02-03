@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   loadMovies();
+
   // Toggle between edit and save
   window.toggleEdit = function (index, btn) {
     let row = btn.parentElement.parentElement;
@@ -62,9 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
     Swal.fire({
       title: "Edit Profile",
       html: `
-              <input id="editUsername" class="swal2-input" value="${user.username}">
-              <input id="editPhone" class="swal2-input" value="${user.phone}">
-          `,
+          <input id="editUsername" class="swal2-input" value="${user.username}">
+          <input id="editPhone" class="swal2-input" value="${user.phone}">
+        `,
       showCancelButton: true,
       confirmButtonText: "Update",
     }).then((result) => {
@@ -82,9 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
     Swal.fire({
       title: "Add Movie",
       html: `
-              <input id="movieName" class="swal2-input" placeholder="Movie Name">
-              <input id="movieRating" class="swal2-input" placeholder="Rating (1-10)">
-          `,
+        <input id="movieName" class="swal2-input" placeholder="Movie Name">
+        <input id="movieRating" class="swal2-input" placeholder="Rating (1-10)">
+        `,
       showCancelButton: true,
       confirmButtonText: "Create",
     }).then((result) => {
@@ -96,16 +97,13 @@ document.addEventListener("DOMContentLoaded", function () {
         movies.push(movie);
         localStorage.setItem(`movies_${user.email}`, JSON.stringify(movies));
         loadMovies();
-        document.querySelector('.movies-table').classList.remove('hide-table');
         document.querySelector('.movies-table').classList.add('display-table');
-
       }
     });
   });
 
   // Logout
   document.getElementById("logoutBtn").addEventListener("click", function () {
-    // localStorage.removeItem("user");
     window.location.href = "login.html";
   });
 });
