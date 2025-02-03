@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>Create an Account</h2>
+      </div>
+      <form id="signupForm">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter your username" oninput="validateForm()">
+            <span class="error" id="usernameError"></span>
+        </div>
+        <div class="input-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter your email" oninput="validateForm()">
+            <span class="error" id="emailError"></span>
+        </div>
+        <div class="input-group">
+            <label>Phone</label>
+            <input type="number" id="phone" placeholder="Enter your phone number" oninput="validateForm()">
+            <span class="error" id="phoneError"></span>
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Create a password" oninput="validateForm()">
+            <span class="error" id="passwordError"></span>
+        </div>
+        <div class="input-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" oninput="validateForm()">
+            <span class="error" id="confirmPasswordError"></span>
+        </div>
+        <button type="button" class="btn-primary" onclick="saveData('local')">Save to Local Storage</button>
+        <button type="button" class="btn-secondary" onclick="saveData('session')">Save to Session Storage</button>
+      </form>
+    </div>
+    <script src="JS/script.js"></script>
+  </body>
+</html>

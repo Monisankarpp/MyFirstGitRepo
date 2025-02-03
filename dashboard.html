@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="CSS/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header>
+            <h2>Welcome, <span id="displayUsername"></span></h2>
+            <button id="logoutBtn">Logout</button>
+        </header>
+        <!-- Profile Section -->
+        <section class="profile-card">
+            <h3>Profile Details</h3>
+            <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+            <p><strong>Phone:</strong> <span id="displayPhone"></span></p>
+            <button id="editProfileBtn">Edit Profile</button>
+        </section>
+        <!-- Add Movie Section -->
+        <section class="movie-section">
+            <button id="addMovieBtn">+ Add Favorite Movie</button>
+        </section>
+        <!-- Movies Table -->
+        <section class="movies-table">
+            <h3>Favorite Movies</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Movie Name</th>
+                        <th>Rating</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="moviesList"></tbody>
+            </table>
+        </section>
+    </div>
+    <script src="JS/dashboard.js"></script>
+</body>
+</html>
