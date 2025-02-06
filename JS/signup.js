@@ -42,19 +42,13 @@ function validateForm() {
     document.getElementById("confirmPasswordError").textContent = "Passwords do not match.";
     isValid = false;
   }
+
   return isValid;
 }
 
-let inputBox = document.getElementById("phone");
-
-let invalidChars = [
-  "-",
-  "+",
-  "e",
-  ".",
-];
-
-inputBox.addEventListener("keydown", function (e) {
+// Prevent invalid characters in phone input
+document.getElementById("phone").addEventListener("keydown", function (e) {
+  let invalidChars = ["-", "+", "e", "."];
   if (invalidChars.includes(e.key)) {
     e.preventDefault();
   }
@@ -63,18 +57,31 @@ inputBox.addEventListener("keydown", function (e) {
 // Function to save user data
 function saveData(storageType) {
   if (validateForm()) {
-    let user = {
+    let newUser = {
       username: document.getElementById("username").value.trim(),
       email: document.getElementById("email").value.trim(),
       phone: document.getElementById("phone").value.trim(),
       password: sha1(document.getElementById("password").value.trim())
     };
 
-    if (storageType === 'local') {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      sessionStorage.setItem("user", JSON.stringify(user));
+    // Retrieve existing users
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Check if email or phone already exists
+    let userExists = users.some(user => user.email === newUser.email || user.phone === newUser.phone);
+
+    if (userExists) {
+      Swal.fire({
+        title: "Error!",
+        text: "User with this email or phone number already exists!",
+        icon: "error"
+      });
+      return;
     }
+
+    // Save new user
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
 
     Swal.fire({
       title: "Success!",
@@ -84,32 +91,6 @@ function saveData(storageType) {
       showConfirmButton: false
     }).then(() => {
       window.location.href = "login.html";
-    });
-  }
-}
-
-// Function to handle login
-function loginUser() {
-  let email = document.getElementById("loginEmail").value.trim();
-  let password = sha1(document.getElementById("loginPassword").value.trim());
-
-  let storedUser = JSON.parse(localStorage.getItem("user")) || JSON.parse(sessionStorage.getItem("user"));
-
-  if (storedUser && storedUser.email === email && storedUser.password === password) {
-    Swal.fire({
-      title: "Welcome Back!",
-      text: "Login successful!",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false
-    }).then(() => {
-      window.location.href = "dashboard.html";
-    });
-  } else {
-    Swal.fire({
-      title: "Error!",
-      text: "Invalid email or password.",
-      icon: "error"
     });
   }
 }
