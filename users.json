@@ -1,0 +1,58 @@
+[
+    {
+        "id": "67a9d75090990",
+        "username": "Mindfire",
+        "email": "Mind@gmail.com",
+        "phone": "6789067890",
+        "password": "$2y$10$ch713NeWtNqQy.Qn.jrBveFvWTNsfeCKQ8V7DT5j.9h8lfw9gj3bO",
+        "profile_photo": "profile.png",
+        "movies": [
+            {
+                "id": "67ab3a34ba5f3",
+                "name": "9j09j0j09j09j0j0j",
+                "rating": "9",
+                "posters": [
+                    "poster_67ab3a34ba3909.44752013.png",
+                    "poster_67ab3a34ba4613.34074530.png",
+                    "poster_67ab3a34ba4999.59431061.png",
+                    "poster_67ab3a34ba4d53.23974406.png",
+                    "poster_67ab3a34ba5a86.95586382.png"
+                ]
+            },
+            {
+                "id": "67ab3cb1c4ef8",
+                "name": "jubiuiuoioi",
+                "rating": "9",
+                "posters": [
+                    "poster_67ab3cb1c4c765.62718416.png",
+                    "poster_67ab3cb1c4d581.27506026.png",
+                    "poster_67ab3cb1c4d9c9.13451287.png",
+                    "poster_67ab3cb1c4dd46.70705818.png",
+                    "poster_67ab3cb1c4eaf3.75712055.png"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "67ab044b5b78e",
+        "username": "Monisankar Patra",
+        "email": "monisankar@gmail.com",
+        "phone": "6789067899",
+        "password": "$2y$10$Y6UPZBzXxfWCJfy\/vyGjuuAUUQVQzppTGNZKom27MGWjh7Qf87UO2",
+        "profile_photo": "profile.png",
+        "movies": [
+            {
+                "id": "67ab049610148",
+                "name": "Ram Meri Ganga Teri",
+                "rating": "9",
+                "poster": "Make Creative Movie Poster With Dark and Red Tone in Photoshop CC.jpg"
+            },
+            {
+                "id": "67ab4648e6dd0",
+                "name": "Ram Meri Ganga Meri",
+                "rating": "10",
+                "poster": "poster_67ab4648e6ca36.50909040.png"
+            }
+        ]
+    }
+]
