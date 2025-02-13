@@ -1,0 +1,50 @@
+[
+    {
+        "id": "67ada0df9a837",
+        "username": "Monisankar Patra",
+        "email": "Moni@gmail.com",
+        "phone": "6789067809",
+        "password": "$2y$10$JggiuSMMEtTk9z.446v6ve8xKmZSqqAdB9Tre8aoey4CBEb5ludAC",
+        "profile_photo": "profile.png",
+        "movies": [
+            {
+                "id": "67adaa70d9ae2",
+                "name": "Ram Meri Ganga",
+                "rating": "10",
+                "posters": [
+                    {
+                        "id": "67adbe8d322d0",
+                        "image": "poster_67adbe8d322132.70670685.png"
+                    },
+                    {
+                        "id": "67adbe8d32581",
+                        "image": "poster_67adbe8d322d55.54019825.png"
+                    },
+                    {
+                        "id": "67adbe8d32646",
+                        "image": "poster_67adbe8d3258a9.32878040.png"
+                    }
+                ]
+            },
+            {
+                "id": "67adadb70d199",
+                "name": "Ram teri ganga meri",
+                "rating": "10",
+                "posters": [
+                    {
+                        "id": "67adbe988f87f",
+                        "image": "poster_67adbe988f7748.28147542.png"
+                    },
+                    {
+                        "id": "67adbe988f8ce",
+                        "image": "poster_67adbe988f8857.54797088.png"
+                    },
+                    {
+                        "id": "67adbe988f9be",
+                        "image": "poster_67adbe988f8cf8.43710751.png"
+                    }
+                ]
+            }
+        ]
+    }
+]
