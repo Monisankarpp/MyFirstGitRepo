@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
     <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
   </div>
+  <script src="JS/login.js"></script>
 </body>
 
 </html>

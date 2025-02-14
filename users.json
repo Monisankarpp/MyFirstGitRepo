@@ -1,47 +1,90 @@
 [
     {
         "id": "67ada0df9a837",
-        "username": "Monisankar Patra",
+        "username": "Monisankar",
         "email": "Moni@gmail.com",
         "phone": "6789067809",
         "password": "$2y$10$JggiuSMMEtTk9z.446v6ve8xKmZSqqAdB9Tre8aoey4CBEb5ludAC",
         "profile_photo": "profile.png",
         "movies": [
             {
-                "id": "67adaa70d9ae2",
-                "name": "Ram Meri Ganga",
+                "id": "67aed3d140679",
+                "name": "Raw",
                 "rating": "10",
                 "posters": [
                     {
-                        "id": "67adbe8d322d0",
-                        "image": "poster_67adbe8d322132.70670685.png"
-                    },
-                    {
-                        "id": "67adbe8d32581",
-                        "image": "poster_67adbe8d322d55.54019825.png"
-                    },
-                    {
-                        "id": "67adbe8d32646",
-                        "image": "poster_67adbe8d3258a9.32878040.png"
+                        "id": "67aed3d140674",
+                        "image": "poster_67aed3d1404e65.40265056.jpg"
                     }
                 ]
             },
             {
-                "id": "67adadb70d199",
-                "name": "Ram teri ganga meri",
+                "id": "67af0fbca663c",
+                "name": "Ram Meri Ganga Meri",
                 "rating": "10",
                 "posters": [
                     {
-                        "id": "67adbe988f87f",
-                        "image": "poster_67adbe988f7748.28147542.png"
+                        "id": "67af0fbca6316",
+                        "image": "poster_67af0fbca62132.60562558.png"
+                    }
+                ]
+            },
+            {
+                "id": "67af108aaf7ec",
+                "name": "jjij",
+                "rating": "7",
+                "posters": [
+                    {
+                        "id": "67af108aaf7ae",
+                        "image": "poster_67af108aaf6bc2.58148094.png"
                     },
                     {
-                        "id": "67adbe988f8ce",
-                        "image": "poster_67adbe988f8857.54797088.png"
+                        "id": "67af108aaf7eb",
+                        "image": "poster_67af108aaf7af4.51331656.png"
+                    }
+                ]
+            },
+            {
+                "id": "67af1970ef0e5",
+                "name": "yrs45s6sy",
+                "rating": "9",
+                "posters": [
+                    {
+                        "id": "67af1970eefbc",
+                        "image": "poster_67af1970eef659.14272536.png"
                     },
                     {
-                        "id": "67adbe988f9be",
-                        "image": "poster_67adbe988f8cf8.43710751.png"
+                        "id": "67af1970ef0e4",
+                        "image": "poster_67af1970eefbd0.75207317.png"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "67adec62d125f",
+        "username": "Mindfire Solutions",
+        "email": "mindfire@gmail.com",
+        "phone": "6789067890",
+        "password": "$2y$10$lz.J9BEUehQDg8l46ciFwuAG.LffLh0AAkST2c84153p04k.xu6fm",
+        "profile_photo": "profile.png",
+        "movies": [
+            {
+                "id": "67adec945e64c",
+                "name": "Ram Teri Ganga Meri",
+                "rating": "9",
+                "posters": [
+                    {
+                        "id": "67adec945e60c",
+                        "image": "poster_67adec945e4dd0.22847718.png"
+                    },
+                    {
+                        "id": "67adec945e64b",
+                        "image": "poster_67adec945e60e9.49640142.png"
+                    },
+                    {
+                        "id": "67adeca9727c8",
+                        "image": "poster_67adeca9724957.53843048.png"
                     }
                 ]
             }

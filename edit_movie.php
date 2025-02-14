@@ -88,7 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($movie['posters'])): ?>
           <?php foreach ($movie['posters'] as $poster): ?>
             <div class="poster-box d-inline-block me-2">
-              <img src="uploads/<?php echo htmlspecialchars($poster['image']); ?>" width="100" height="150">
+              <img src="uploads/<?php echo htmlspecialchars($poster['image']); ?>" width="100" height="150"
+                accept=".png, .jpeg, .jpg">
               <button type="button" class="btn btn-danger btn-sm mt-1 delete-btn"
                 data-poster-id="<?php echo $poster['id']; ?>" data-bs-toggle="modal"
                 data-bs-target="#deleteModal">❌</button>
