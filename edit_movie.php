@@ -1,63 +1,101 @@
 <?php
 session_start();
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-  die("Error: You must be logged in.");
-}
+try {
+  // Check if user is logged in
+  if (!isset($_SESSION['user_id'])) {
+    throw new Exception("Error: You must be logged in.");
+  }
 
-$movieId = $_GET['movie_id'];
-$users = json_decode(file_get_contents('users.json'), true);
+  $movieId = $_GET['movie_id'] ?? null;
+  if (!$movieId) {
+    throw new Exception("Error: Invalid movie ID.");
+  }
 
-// Find user index
-$userIndex = array_search($_SESSION['user_id'], array_column($users, 'id'));
-if ($userIndex === false) {
-  die("Error: User not found.");
-}
+  // Check if users.json exists
+  if (!file_exists('users.json')) {
+    throw new Exception("Error: Data file not found.");
+  }
 
-// Find movie index
-$movies = &$users[$userIndex]['movies'];
-$movieIndex = array_search($movieId, array_column($movies, 'id'));
+  $users = json_decode(file_get_contents('users.json'), true);
+  if ($users === null) {
+    throw new Exception("Error: Failed to load user data.");
+  }
 
-if ($movieIndex === false) {
-  die("Error: Movie not found.");
-}
+  // Find user index
+  $userIndex = array_search($_SESSION['user_id'], array_column($users, 'id'));
+  if ($userIndex === false) {
+    throw new Exception("Error: User not found.");
+  }
 
-$movie = &$movies[$movieIndex];
+  // Find movie index
+  $movies = &$users[$userIndex]['movies'];
+  $movieIndex = array_search($movieId, array_column($movies, 'id'));
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $movieName = trim($_POST['movie_name']);
-  $rating = trim($_POST['rating']);
+  if ($movieIndex === false) {
+    throw new Exception("Error: Movie not found.");
+  }
 
-  // Handle new poster uploads
-  if (!empty($_FILES['posters']['name'][0])) {
-    $uploadDir = 'uploads/';
-    foreach ($_FILES['posters']['tmp_name'] as $key => $tmpName) {
-      $posterName = $_FILES['posters']['name'][$key];
-      $imageExtension = pathinfo($posterName, PATHINFO_EXTENSION);
-      $newImageName = uniqid('poster_', true) . "." . strtolower($imageExtension);
-      $posterPath = $uploadDir . $newImageName;
+  $movie = &$movies[$movieIndex];
 
-      if (move_uploaded_file($tmpName, $posterPath)) {
+  // Handle form submission
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $movieName = trim($_POST['movie_name']);
+    $rating = trim($_POST['rating']);
+
+    if (empty($movieName) || empty($rating)) {
+      throw new Exception("Error: Movie name and rating are required.");
+    }
+
+    // Handle new poster uploads
+    if (!empty($_FILES['posters']['name'][0])) {
+      $uploadDir = 'uploads/';
+      if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+      }
+
+      foreach ($_FILES['posters']['tmp_name'] as $key => $tmpName) {
+        if ($_FILES['posters']['size'][$key] > 2 * 1024 * 1024) { // 2MB limit
+          throw new Exception("Error: File size exceeds 5MB.");
+        }
+
+        $posterName = $_FILES['posters']['name'][$key];
+        $imageExtension = pathinfo($posterName, PATHINFO_EXTENSION);
+        $allowedExtensions = ['jpg', 'jpeg', 'png'];
+
+        if (!in_array(strtolower($imageExtension), $allowedExtensions)) {
+          throw new Exception("Error: Only JPG, JPEG, and PNG files are allowed.");
+        }
+
+        $newImageName = uniqid('poster_', true) . "." . strtolower($imageExtension);
+        $posterPath = $uploadDir . $newImageName;
+
+        if (!move_uploaded_file($tmpName, $posterPath)) {
+          throw new Exception("Error: Failed to upload file.");
+        }
+
         $movie['posters'][] = [
           'id' => uniqid(),
           'image' => $newImageName
         ];
       }
     }
+
+    // Update movie details
+    $movie['name'] = $movieName;
+    $movie['rating'] = $rating;
+
+    // Save updated data to JSON
+    if (file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT)) === false) {
+      throw new Exception("Error: Failed to save data.");
+    }
+
+    // Redirect back to dashboard
+    header("Location: dashboard.php");
+    exit();
   }
-
-  // Update movie details
-  $movie['name'] = $movieName;
-  $movie['rating'] = $rating;
-
-  // Save updated data to JSON
-  file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT));
-
-  // Redirect back to dashboard
-  header("Location: dashboard.php");
-  exit();
+} catch (Exception $e) {
+  die($e->getMessage());
 }
 ?>
 
@@ -100,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
       </div>
 
-      <label>Add New Posters:</label>
-      <input type="file" name="posters[]" multiple class="form-control mb-2">
+      <label>Add New Posters (Max 5MB per file):</label>
+      <input type="file" name="posters[]" multiple class="form-control mb-2" accept=".png,.jpeg,.jpg">
 
       <button type="submit" class="btn btn-primary">Update Movie</button>
     </form>

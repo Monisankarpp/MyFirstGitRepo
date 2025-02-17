@@ -1,5 +1,11 @@
 <?php
 $errorMessages = []; // Store all error messages
+$jsonFile = 'users.json';
+
+// Ensure users.json file exists
+if (!file_exists($jsonFile)) {
+  file_put_contents($jsonFile, json_encode([], JSON_PRETTY_PRINT));
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $username = trim($_POST['username']);
@@ -27,9 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errorMessages['password'] = "Password must be at least 6 characters, include 1 uppercase, 1 lowercase, 1 number & 1 special character.";
   }
 
-  // If all validations pass, than storing user
+  // If all validations pass, store user
   if (empty($errorMessages)) {
-    $users = json_decode(file_get_contents('users.json'), true) ?: [];
+    $users = json_decode(file_get_contents($jsonFile), true) ?: [];
 
     // Check if email is already registered
     foreach ($users as $user) {
@@ -51,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'movies' => []
       ];
       $users[] = $newUser;
-      file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT));
+      file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT));
       header("Location: index.php");
       exit();
     }
