@@ -1,0 +1,8 @@
+RewriteEngine on
+
+# Ensure the requested URL is not an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# If a request is made without an extension, append .php internally
+RewriteRule ^([^/.]+)$ $1.php [L]

@@ -1,6 +1,15 @@
 <?php
 session_start();
 
+$logFile = "text.log"; // Log file for storing exceptions
+
+function logError($message)
+{
+  global $logFile;
+  $timestamp = date("Y-m-d H:i:s");
+  error_log("[$timestamp] ERROR: $message" . PHP_EOL, 3, $logFile);
+}
+
 try {
   // Check if the user is logged in
   if (!isset($_SESSION['user_id'])) {
@@ -35,9 +44,10 @@ try {
   if (!$currentUser) {
     throw new Exception("Error: User not found.");
   }
-
 } catch (Exception $e) {
-  die("<p style='color: red; font-weight: bold;'>{$e->getMessage()}</p>");
+  logError($e->getMessage());
+  echo "<p style='color: red; font-weight: bold;'>Something went wrong. Please try again later.</p>";
+  exit();
 }
 ?>
 

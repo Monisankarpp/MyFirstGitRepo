@@ -2,11 +2,19 @@
 session_start();
 
 $error = ""; // Store error messages
+$logFile = "test.log"; // Log file for storing exceptions
+
+function logError($message)
+{
+  global $logFile;
+  $timestamp = date("Y-m-d H:i:s");
+  error_log("[$timestamp] ERROR: $message" . PHP_EOL, 3, $logFile);
+}
 
 try {
   // Check if the user is logged in
   if (!isset($_SESSION['user_id'])) {
-    throw new Exception("You must be logged in to add a movie.");
+    throw new Exception("Error: You must be logged in to add a movie.");
   }
 
   $desktopPath = "users.json";
@@ -37,7 +45,7 @@ try {
 
     // Validate input
     if (empty($movieName) || empty($rating)) {
-      throw new Exception("All fields are required!");
+      throw new Exception("Error: All fields are required!");
     }
 
     // Handle multiple file uploads with size constraints
@@ -88,6 +96,7 @@ try {
   }
 } catch (Exception $e) {
   $error = $e->getMessage();
+  logError($error);
 }
 ?>
 

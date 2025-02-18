@@ -50,6 +50,17 @@
                         "image": "poster_67af1970eef659.14272536.png"
                     }
                 ]
+            },
+            {
+                "id": "67b465d66e4f6",
+                "name": "Ram Meri Ganga Meri",
+                "rating": "10",
+                "posters": [
+                    {
+                        "id": "67b465d66e4eb",
+                        "image": "poster_67b465d66e4212.11730157.png"
+                    }
+                ]
             }
         ]
     },
