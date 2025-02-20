@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+// Define log file path in a platform-independent way
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . 'error.log';
+
 try {
   // Check if user is logged in
   if (!isset($_SESSION['user_id'])) {
@@ -13,11 +16,12 @@ try {
   }
 
   // Check if users.json exists
-  if (!file_exists('users.json')) {
+  $userFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json';
+  if (!file_exists($userFile)) {
     throw new Exception("Error: Data file not found.");
   }
 
-  $users = json_decode(file_get_contents('users.json'), true);
+  $users = json_decode(file_get_contents($userFile), true);
   if ($users === null) {
     throw new Exception("Error: Failed to load user data.");
   }
@@ -43,20 +47,26 @@ try {
     $movieName = trim($_POST['movie_name']);
     $rating = trim($_POST['rating']);
 
-    if (empty($movieName) || empty($rating)) {
-      throw new Exception("Error: Movie name and rating are required.");
+    // Validate movie name
+    if (empty($movieName)) {
+      throw new Exception("Error: Movie name cannot be blank.");
+    }
+
+    // Validate rating
+    if (!is_numeric($rating) || $rating < 0 || $rating > 10) {
+      throw new Exception("Error: Rating must be between 0 and 10.");
     }
 
     // Handle new poster uploads
     if (!empty($_FILES['posters']['name'][0])) {
-      $uploadDir = 'uploads/';
+      $uploadDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
       if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0777, true);
       }
 
       foreach ($_FILES['posters']['tmp_name'] as $key => $tmpName) {
         if ($_FILES['posters']['size'][$key] > 2 * 1024 * 1024) { // 2MB limit
-          throw new Exception("Error: File size exceeds 5MB.");
+          throw new Exception("Error: File size exceeds 2MB.");
         }
 
         $posterName = $_FILES['posters']['name'][$key];
@@ -86,7 +96,7 @@ try {
     $movie['rating'] = $rating;
 
     // Save updated data to JSON
-    if (file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT)) === false) {
+    if (file_put_contents($userFile, json_encode($users, JSON_PRETTY_PRINT)) === false) {
       throw new Exception("Error: Failed to save data.");
     }
 
@@ -95,7 +105,12 @@ try {
     exit();
   }
 } catch (Exception $e) {
-  die($e->getMessage());
+  // Log error details
+  $errorMessage = "[" . date("Y-m-d H:i:s") . "] " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
+  error_log($errorMessage, 3, $logFile);
+
+  // Display user-friendly message
+  die("An error occurred. Please check the log file.");
 }
 ?>
 
@@ -117,17 +132,16 @@ try {
       <input type="text" name="movie_name" value="<?php echo htmlspecialchars($movie['name']); ?>" required
         class="form-control mb-2">
 
-      <label>Rating:</label>
-      <input type="text" name="rating" value="<?php echo htmlspecialchars($movie['rating']); ?>" required
-        class="form-control mb-2">
+      <label>Rating (0-10):</label>
+      <input type="number" name="rating" min="0" max="10" step="0.1"
+        value="<?php echo htmlspecialchars($movie['rating']); ?>" required class="form-control mb-2">
 
       <h3>Current Posters:</h3>
       <div id="posterContainer">
         <?php if (!empty($movie['posters'])): ?>
           <?php foreach ($movie['posters'] as $poster): ?>
             <div class="poster-box d-inline-block me-2">
-              <img src="uploads/<?php echo htmlspecialchars($poster['image']); ?>" width="100" height="150"
-                accept=".png, .jpeg, .jpg">
+              <img src="uploads/<?php echo htmlspecialchars($poster['image']); ?>" width="100" height="150">
               <button type="button" class="btn btn-danger btn-sm mt-1 delete-btn"
                 data-poster-id="<?php echo $poster['id']; ?>" data-bs-toggle="modal"
                 data-bs-target="#deleteModal">❌</button>
@@ -138,7 +152,7 @@ try {
         <?php endif; ?>
       </div>
 
-      <label>Add New Posters (Max 5MB per file):</label>
+      <label>Add New Posters (Max 2MB per file):</label>
       <input type="file" name="posters[]" multiple class="form-control mb-2" accept=".png,.jpeg,.jpg">
 
       <button type="submit" class="btn btn-primary">Update Movie</button>
@@ -170,25 +184,18 @@ try {
   <script>
     let posterIdToDelete = null;
 
-    // Capture the poster ID when delete button is clicked
     $('.delete-btn').on('click', function () {
       posterIdToDelete = $(this).data('poster-id');
     });
 
-    // Handle delete confirmation
     $('#confirmDeleteBtn').on('click', function () {
       if (posterIdToDelete) {
-        $.ajax({
-          url: 'delete_poster.php',
-          type: 'POST',
-          data: { poster_id: posterIdToDelete, movie_id: "<?php echo $movieId; ?>" },
-          success: function (response) {
-            if (response === "success") {
-              $('button[data-poster-id="' + posterIdToDelete + '"]').closest('.poster-box').remove();
-              $('#deleteModal').modal('hide');
-            } else {
-              alert("Error deleting poster.");
-            }
+        $.post('delete_poster.php', { poster_id: posterIdToDelete, movie_id: "<?php echo $movieId; ?>" }, function (response) {
+          if (response === "success") {
+            $('button[data-poster-id="' + posterIdToDelete + '"]').closest('.poster-box').remove();
+            $('#deleteModal').modal('hide');
+          } else {
+            alert("Error deleting poster.");
           }
         });
       }

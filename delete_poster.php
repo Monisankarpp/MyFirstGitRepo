@@ -1,8 +1,17 @@
 <?php
 session_start();
 
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log"; // Platform-independent log file
+
+function logError($message)
+{
+  global $logFile;
+  $timestamp = date("Y-m-d H:i:s");
+  error_log("[$timestamp] ERROR: $message" . PHP_EOL, 3, $logFile);
+}
+
 try {
-  $jsonFile = 'users.json';
+  $jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json'; // Platform-independent path
 
   // Check if JSON file exists
   if (!file_exists($jsonFile)) {
@@ -40,7 +49,7 @@ try {
   // Find and remove the poster
   foreach ($movie['posters'] as $key => $poster) {
     if ($poster['id'] === $_POST['poster_id']) {
-      $posterPath = "uploads/" . $poster['image'];
+      $posterPath = __DIR__ . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . $poster['image'];
 
       // Delete file if it exists
       if (file_exists($posterPath)) {
@@ -64,6 +73,7 @@ try {
 
   throw new Exception("Error: Poster not found.");
 } catch (Exception $e) {
-  echo $e->getMessage(); // Return detailed error message
+  logError($e->getMessage()); // Log error
+  echo $e->getMessage(); // Return error message
   exit();
 }

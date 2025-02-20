@@ -2,8 +2,11 @@
 session_start();
 
 $error = ""; // Store error messages
-$logFile = "test.log"; // Log file for storing exceptions
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log"; // Log file
+$jsonFile = __DIR__ . DIRECTORY_SEPARATOR . "user.json"; // Users file
+$uploadDir = __DIR__ . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR; // Uploads directory
 
+// Function to log errors
 function logError($message)
 {
   global $logFile;
@@ -12,27 +15,25 @@ function logError($message)
 }
 
 try {
-  // Check if the user is logged in
+  // Ensure user is logged in
   if (!isset($_SESSION['user_id'])) {
     throw new Exception("Error: You must be logged in to add a movie.");
   }
 
-  $desktopPath = "users.json";
-
-  // Check if users.json exists
-  if (!file_exists($desktopPath)) {
-    throw new Exception("Error: users.json file not found.");
+  // Create users.json if not exists
+  if (!file_exists($jsonFile)) {
+    if (file_put_contents($jsonFile, json_encode([], JSON_PRETTY_PRINT)) === false) {
+      throw new Exception("Error: Unable to create users.json.");
+    }
   }
 
-  // Load user data
-  $usersData = file_get_contents($desktopPath);
-  $users = json_decode($usersData, true);
-
+  // Load users data
+  $users = json_decode(file_get_contents($jsonFile), true);
   if ($users === null) {
     throw new Exception("Error: Failed to read or decode users.json.");
   }
 
-  // Find the current user in the users array
+  // Find the current user
   $userIndex = array_search($_SESSION['user_id'], array_column($users, 'id'));
   if ($userIndex === false) {
     throw new Exception("Error: User not found.");
@@ -43,51 +44,60 @@ try {
     $rating = trim($_POST['rating']);
     $posters = [];
 
-    // Validate input
-    if (empty($movieName) || empty($rating)) {
-      throw new Exception("Error: All fields are required!");
+    // Validate inputs
+    if (empty($movieName)) {
+      throw new Exception("Error: Movie name cannot be empty.");
+    }
+    if (empty($rating) || !is_numeric($rating) || $rating < 0 || $rating > 10) {
+      throw new Exception("Error: Rating must be a number between 0 and 10.");
     }
 
-    // Handle multiple file uploads with size constraints
+    // Handle file uploads
     if (!empty($_FILES['poster']['name'][0])) {
-      $target_dir = "uploads/";
-      $posters = [];
+      if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 777, true);
+      }
+
       $maxFileSize = 2 * 1024 * 1024; // 2MB limit
+      $allowedExtensions = ['jpg', 'jpeg', 'png'];
 
       foreach ($_FILES['poster']['name'] as $key => $name) {
         $tempName = $_FILES['poster']['tmp_name'][$key];
         $fileSize = $_FILES['poster']['size'][$key];
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
-        // Check file size
+        // Validate file type and size
+        if (!in_array($extension, $allowedExtensions)) {
+          throw new Exception("Error: Only JPG, JPEG, and PNG files are allowed.");
+        }
         if ($fileSize > $maxFileSize) {
           throw new Exception("Error: File '$name' exceeds the 2MB size limit.");
         }
 
-        $newImageName = uniqid('poster_', true) . "." . pathinfo($name, PATHINFO_EXTENSION);
-
-        if (!move_uploaded_file($tempName, $target_dir . $newImageName)) {
+        // Generate unique name and move file
+        $newImageName = uniqid('poster_', true) . ".$extension";
+        if (!move_uploaded_file($tempName, $uploadDir . $newImageName)) {
           throw new Exception("Error: Failed to upload one or more images.");
         }
 
         $posters[] = [
-          'id' => uniqid(),  // Generate a unique ID for each image
+          'id' => uniqid(),
           'image' => $newImageName
         ];
       }
     }
 
+    // Add new movie
     $newMovie = [
       'id' => uniqid(),
       'name' => $movieName,
       'rating' => $rating,
       'posters' => $posters
     ];
-
-    // Add the new movie to the user's movie list
     $users[$userIndex]['movies'][] = $newMovie;
 
-    // Save updated user data to the JSON file
-    if (!file_put_contents($desktopPath, json_encode($users, JSON_PRETTY_PRINT))) {
+    // Save updated data
+    if (!file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT))) {
       throw new Exception("Error: Failed to save movie data.");
     }
 
@@ -115,7 +125,7 @@ try {
   <div class="container">
     <h2>Add Favorite Movie</h2>
 
-    <!-- Show error message only if an error exists -->
+    <!-- Show error message if any -->
     <p class="error" id="errorMessage" <?php if (!empty($error))
       echo 'style="display:block;"'; ?>>
       <?php echo $error; ?>
@@ -125,8 +135,8 @@ try {
       <label for="movie_name">Movie Name:</label>
       <input type="text" name="movie_name" required>
 
-      <label for="rating">Rating:</label>
-      <input type="text" name="rating" required>
+      <label for="rating">Rating (0-10):</label>
+      <input type="number" name="rating" min="0" max="10" step="0.1" required>
 
       <label for="poster">Movie Posters (Max 2MB per file):</label>
       <input type="file" name="poster[]" accept=".jpg, .jpeg, .png" multiple>

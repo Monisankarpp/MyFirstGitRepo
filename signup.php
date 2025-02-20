@@ -1,17 +1,21 @@
 <?php
+session_start();
 $errorMessages = []; // Store all error messages
-$jsonFile = 'users.json';
 
-// Ensure users.json file exists
+// Define path to users.json in a platform-independent way
+$jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json';
+
+// Ensure users.json exists
 if (!file_exists($jsonFile)) {
   file_put_contents($jsonFile, json_encode([], JSON_PRETTY_PRINT));
 }
 
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $username = trim($_POST['username']);
-  $email = trim($_POST['email']);
-  $phone = trim($_POST['phone']);
-  $password = $_POST['password'];
+  $username = trim($_POST['username'] ?? '');
+  $email = trim($_POST['email'] ?? '');
+  $phone = trim($_POST['phone'] ?? '');
+  $password = $_POST['password'] ?? '';
 
   // Validate Username
   if (empty($username) || strlen($username) < 6) {
@@ -33,19 +37,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errorMessages['password'] = "Password must be at least 6 characters, include 1 uppercase, 1 lowercase, 1 number & 1 special character.";
   }
 
-  // If all validations pass, store user
+  // If all validations pass, proceed
   if (empty($errorMessages)) {
     $users = json_decode(file_get_contents($jsonFile), true) ?: [];
 
     // Check if email is already registered
     foreach ($users as $user) {
-      if ($user['email'] == $email) {
+      if ($user['email'] === $email) {
         $errorMessages['email'] = "Email already registered!";
         break;
       }
     }
 
-    // If no email conflict, save user
+    // If no email conflict, store new user
     if (empty($errorMessages)) {
       $newUser = [
         'id' => uniqid(),
@@ -57,7 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'movies' => []
       ];
       $users[] = $newUser;
+
+      // Save updated users list
       file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT));
+
+      // Redirect to login page
       header("Location: index.php");
       exit();
     }
@@ -81,15 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <form method="POST" onsubmit="return validateForm()">
       <input type="text" name="username" id="username" placeholder="Username"
-        value="<?php echo $_POST['username'] ?? ''; ?>" oninput="validateForm()">
+        value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" oninput="validateForm()">
       <p class="error" id="usernameError"><?php echo $errorMessages['username'] ?? ''; ?></p>
 
-      <input type="email" name="email" id="email" placeholder="Email" value="<?php echo $_POST['email'] ?? ''; ?>"
-        oninput="validateForm()">
+      <input type="email" name="email" id="email" placeholder="Email"
+        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" oninput="validateForm()">
       <p class="error" id="emailError"><?php echo $errorMessages['email'] ?? ''; ?></p>
 
-      <input type="tel" name="phone" id="phone" placeholder="Phone Number" value="<?php echo $_POST['phone'] ?? ''; ?>"
-        maxlength="10" oninput="validateForm()">
+      <input type="tel" name="phone" id="phone" placeholder="Phone Number"
+        value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" maxlength="10" oninput="validateForm()">
       <p class="error" id="phoneError"><?php echo $errorMessages['phone'] ?? ''; ?></p>
 
       <input type="password" name="password" id="password" placeholder="Password" oninput="validateForm()">

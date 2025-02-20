@@ -2,20 +2,27 @@
 session_start();
 
 try {
-  // Check if user is logged in
+  $jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json';
+  $uploadDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+  $logFile = __DIR__ . DIRECTORY_SEPARATOR . 'error.log'; // Log file for errors
+
+  // Create users.json if not exists
+  if (!file_exists($jsonFile)) {
+    if (file_put_contents($jsonFile, json_encode([], JSON_PRETTY_PRINT)) === false) {
+      throw new Exception("Error: Unable to create users.json.");
+    }
+  }
+
+  // Load users data
+  $users = json_decode(file_get_contents($jsonFile), true);
+  if ($users === null) {
+    throw new Exception("Error: Failed to load user data.");
+  }
+
+  // Ensure user is logged in
   if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
-  }
-
-  // Check if users.json exists
-  if (!file_exists('users.json')) {
-    throw new Exception("Error: Data file not found.");
-  }
-
-  $users = json_decode(file_get_contents('users.json'), true);
-  if ($users === null) {
-    throw new Exception("Error: Failed to load user data.");
   }
 
   // Find current user
@@ -38,21 +45,22 @@ try {
     $username = trim($_POST['username']);
     $phone = trim($_POST['phone']);
 
-    // Validate form inputs
-    if (empty($username) || empty($phone)) {
-      $errorMessage = "Error: All fields are required.";
+    // Validate input
+    if (empty($username)) {
+      $errorMessage = "Error: Username cannot be empty.";
+    } elseif (empty($phone)) {
+      $errorMessage = "Error: Phone number cannot be empty.";
     } elseif (!preg_match("/^[a-zA-Z0-9_ ]+$/", $username)) {
       $errorMessage = "Error: Username can only contain letters, numbers, spaces, and underscores.";
     } elseif (!preg_match("/^[0-9]{10}$/", $phone)) {
       $errorMessage = "Error: Phone number must be exactly 10 digits.";
     } else {
-      // Update user details
+      // Update user data
       $currentUser['username'] = $username;
       $currentUser['phone'] = $phone;
 
       // Handle profile photo upload
       if (!empty($_FILES['profile_photo']['name'])) {
-        $uploadDir = "uploads/";
         if (!is_dir($uploadDir)) {
           mkdir($uploadDir, 0777, true);
         }
@@ -77,9 +85,9 @@ try {
         }
       }
 
-      // If no errors, save to JSON and redirect
+      // Save changes if no errors
       if (empty($errorMessage)) {
-        if (file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT)) === false) {
+        if (file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT)) === false) {
           throw new Exception("Error: Failed to save data.");
         }
         header("Location: dashboard.php");
@@ -89,6 +97,9 @@ try {
   }
 } catch (Exception $e) {
   $errorMessage = $e->getMessage();
+
+  // Log error to file
+  file_put_contents($logFile, "[" . date("Y-m-d H:i:s") . "] " . $errorMessage . PHP_EOL, FILE_APPEND);
 }
 ?>
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$logFile = "text.log"; // Log file for storing exceptions
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log"; // Platform-independent log file path
 
 function logError($message)
 {
@@ -17,7 +17,7 @@ try {
     exit();
   }
 
-  $jsonFile = 'users.json';
+  $jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json'; // Platform-independent path
 
   // Check if users.json exists
   if (!file_exists($jsonFile)) {
