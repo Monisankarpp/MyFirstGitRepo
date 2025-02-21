@@ -2,13 +2,7 @@
 session_start();
 $errorMessages = []; // Store all error messages
 
-// Define path to users.json in a platform-independent way
-$jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json';
-
-// Ensure users.json exists
-if (!file_exists($jsonFile)) {
-  file_put_contents($jsonFile, json_encode([], JSON_PRETTY_PRINT));
-}
+include_once "db_connection.php";
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -16,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $email = trim($_POST['email'] ?? '');
   $phone = trim($_POST['phone'] ?? '');
   $password = $_POST['password'] ?? '';
+  $uuid = uniqid();
 
   // Validate Username
   if (empty($username) || strlen($username) < 6) {
@@ -39,38 +34,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   // If all validations pass, proceed
   if (empty($errorMessages)) {
-    $users = json_decode(file_get_contents($jsonFile), true) ?: [];
-
     // Check if email is already registered
-    foreach ($users as $user) {
-      if ($user['email'] === $email) {
-        $errorMessages['email'] = "Email already registered!";
-        break;
+    $stmt = $conn->prepare("SELECT id FROM User WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+      $errorMessages['email'] = "Email already registered!";
+    } else {
+      // Insert new user
+      // $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+      $hashedPassword = $password;
+      $stmt = $conn->prepare("INSERT INTO User (uuid, username, email, profile_photo, phone, passwords) VALUES (?, ?, ?, ?, ?, ?)");
+      $profile_photo = 'default.png';
+      $stmt->bind_param("ssssss", $uuid, $username, $email, $profile_photo, $phone, $hashedPassword);
+
+      if ($stmt->execute()) {
+        // Redirect to login page
+        header("Location: index.php");
+        exit();
+      } else {
+        $errorMessages['general'] = "Error: Unable to register user.";
       }
     }
-
-    // If no email conflict, store new user
-    if (empty($errorMessages)) {
-      $newUser = [
-        'id' => uniqid(),
-        'username' => $username,
-        'email' => $email,
-        'phone' => $phone,
-        'password' => password_hash($password, PASSWORD_DEFAULT),
-        'profile_photo' => 'default.png',
-        'movies' => []
-      ];
-      $users[] = $newUser;
-
-      // Save updated users list
-      file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT));
-
-      // Redirect to login page
-      header("Location: index.php");
-      exit();
-    }
+    $stmt->close();
   }
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>

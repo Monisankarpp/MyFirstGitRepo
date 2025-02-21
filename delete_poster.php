@@ -1,7 +1,8 @@
 <?php
 session_start();
+require 'db_connection.php'; // Include database connection
 
-$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log"; // Platform-independent log file
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log";
 
 function logError($message)
 {
@@ -11,69 +12,52 @@ function logError($message)
 }
 
 try {
-  $jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json'; // Platform-independent path
-
-  // Check if JSON file exists
-  if (!file_exists($jsonFile)) {
-    throw new Exception("Error: users.json file not found.");
-  }
-
-  // Load JSON data
-  $usersData = file_get_contents($jsonFile);
-  $users = json_decode($usersData, true);
-
-  if ($users === null) {
-    throw new Exception("Error: Failed to decode users.json.");
-  }
-
   // Validate required POST parameters
   if (!isset($_SESSION['user_id']) || !isset($_POST['poster_id']) || !isset($_POST['movie_id'])) {
     throw new Exception("Error: Missing required parameters.");
   }
 
-  // Find the current user
-  $userIndex = array_search($_SESSION['user_id'], array_column($users, 'id'));
-  if ($userIndex === false) {
-    throw new Exception("Error: User not found.");
+  $userId = $_SESSION['user_id'];
+  $movieId = $_POST['movie_id'];
+  $posterId = $_POST['poster_id'];
+
+  // Check if the movie exists and belongs to the user
+  $stmt = $conn->prepare("SELECT id FROM movies WHERE id = ? AND user_id = ?");
+  $stmt->bind_param("ii", $movieId, $userId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result->num_rows === 0) {
+    throw new Exception("Error: Movie not found or unauthorized access.");
   }
 
-  $movies = &$users[$userIndex]['movies'];
-  $movieIndex = array_search($_POST['movie_id'], array_column($movies, 'id'));
-
-  if ($movieIndex === false) {
-    throw new Exception("Error: Movie not found.");
+  // Get the poster details
+  $stmt = $conn->prepare("SELECT image FROM movie_posters WHERE id = ? AND movie_id = ?");
+  $stmt->bind_param("ii", $posterId, $movieId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $poster = $result->fetch_assoc();
+  if (!$poster) {
+    throw new Exception("Error: Poster not found.");
   }
 
-  $movie = &$movies[$movieIndex];
+  $posterPath = __DIR__ . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . $poster['image'];
 
-  // Find and remove the poster
-  foreach ($movie['posters'] as $key => $poster) {
-    if ($poster['id'] === $_POST['poster_id']) {
-      $posterPath = __DIR__ . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . $poster['image'];
-
-      // Delete file if it exists
-      if (file_exists($posterPath)) {
-        if (!unlink($posterPath)) {
-          throw new Exception("Error: Failed to delete poster file.");
-        }
-      }
-
-      unset($movie['posters'][$key]); // Remove the poster from the list
-      $movie['posters'] = array_values($movie['posters']); // Reindex array
-
-      // Save updated data back to JSON
-      if (!file_put_contents($jsonFile, json_encode($users, JSON_PRETTY_PRINT))) {
-        throw new Exception("Error: Failed to update users.json.");
-      }
-
-      echo "success";
-      exit();
+  // Delete file if it exists
+  if (file_exists($posterPath)) {
+    if (!unlink($posterPath)) {
+      throw new Exception("Error: Failed to delete poster file.");
     }
   }
 
-  throw new Exception("Error: Poster not found.");
+  // Delete poster from database
+  $stmt = $conn->prepare("DELETE FROM movie_posters WHERE id = ?");
+  $stmt->bind_param("i", $posterId);
+  $stmt->execute();
+
+  echo "success";
+  exit();
 } catch (Exception $e) {
-  logError($e->getMessage()); // Log error
-  echo $e->getMessage(); // Return error message
+  logError($e->getMessage());
+  echo $e->getMessage();
   exit();
 }

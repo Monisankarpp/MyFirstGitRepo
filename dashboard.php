@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log"; // Platform-independent log file path
+$logFile = __DIR__ . DIRECTORY_SEPARATOR . "error.log";
 
 function logError($message)
 {
@@ -10,45 +10,66 @@ function logError($message)
   error_log("[$timestamp] ERROR: $message" . PHP_EOL, 3, $logFile);
 }
 
+include_once "db_connection.php";
+
 try {
-  // Check if the user is logged in
   if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
   }
 
-  $jsonFile = __DIR__ . DIRECTORY_SEPARATOR . 'user.json'; // Platform-independent path
+  $userId = $_SESSION['user_id'];
 
-  // Check if users.json exists
-  if (!file_exists($jsonFile)) {
-    throw new Exception("Error: users.json file not found.");
-  }
+  // Retrieve user data from database
+  $stmt = $conn->prepare("SELECT username, email, phone, profile_photo FROM User WHERE id = ?");
+  $stmt->bind_param("i", $userId);
+  $stmt->execute();
+  $stmt->store_result();
+  $stmt->bind_result($username, $email, $phone, $profilePhoto);
+  $stmt->fetch();
 
-  // Read and decode JSON data
-  $usersData = file_get_contents($jsonFile);
-  $users = json_decode($usersData, true);
-
-  if ($users === null) {
-    throw new Exception("Error: Failed to read or decode users.json.");
-  }
-
-  // Find the current user
-  $currentUser = null;
-  foreach ($users as $user) {
-    if ($user['id'] == $_SESSION['user_id']) {
-      $currentUser = $user;
-      break;
-    }
-  }
-
-  if (!$currentUser) {
+  if ($stmt->num_rows === 0) {
     throw new Exception("Error: User not found.");
   }
+  $stmt->close();
+  // Retrieve movies from database
+  $movies = [];
+  $stmt = $conn->prepare("SELECT id, movie_name, rating FROM movies WHERE user_id = ?");
+  $stmt->bind_param("i", $userId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  while ($row = $result->fetch_assoc()) {
+    $movieId = $row['id'];
+
+    // Fetch posters for each movie
+    $posterStmt = $conn->prepare("SELECT image FROM movie_posters WHERE movie_id = ?");
+    $posterStmt->bind_param("i", $movieId);
+    $posterStmt->execute();
+    $posterResult = $posterStmt->get_result();
+
+    $posters = [];
+    while ($posterRow = $posterResult->fetch_assoc()) {
+      $posters[] = $posterRow;
+    }
+    $posterStmt->close();
+
+    $movies[] = [
+      'id' => $row['id'],
+      'name' => $row['movie_name'],
+      'rating' => $row['rating'],
+      'posters' => $posters
+    ];
+  }
+  $stmt->close();
+
+
 } catch (Exception $e) {
   logError($e->getMessage());
   echo "<p style='color: red; font-weight: bold;'>Something went wrong. Please try again later.</p>";
   exit();
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -58,7 +79,6 @@ try {
   <title>Dashboard</title>
   <link rel="stylesheet" href="CSS/dashboard.css">
   <style>
-    /* Modal styles */
     .modal {
       display: none;
       position: fixed;
@@ -91,13 +111,13 @@ try {
 <body>
 
   <div class="header">
-    <h1>Welcome, <?php echo htmlspecialchars($currentUser['username']); ?>!</h1>
+    <h1>Welcome, <?php echo htmlspecialchars($username); ?>!</h1>
   </div>
 
   <div class="profile-info">
-    <p><strong>Email:</strong> <?php echo htmlspecialchars($currentUser['email']); ?></p>
-    <p><strong>Phone:</strong> <?php echo htmlspecialchars($currentUser['phone']); ?></p>
-    <img src="uploads/<?php echo htmlspecialchars($currentUser['profile_photo']); ?>" alt="Profile Photo" width="150">
+    <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
+    <p><strong>Phone:</strong> <?php echo htmlspecialchars($phone); ?></p>
+    <img src="uploads/<?php echo htmlspecialchars($profilePhoto); ?>" alt="Profile Photo" width="150">
     <div>
       <a href="edit_profile.php">Edit Profile</a>
       <a href="add_movie.php">Add Favorite Movie</a>
@@ -115,8 +135,8 @@ try {
         <th>Action</th>
       </tr>
 
-      <?php if (!empty($currentUser['movies'])): ?>
-        <?php foreach ($currentUser['movies'] as $movie): ?>
+      <?php if (!empty($movies)): ?>
+        <?php foreach ($movies as $movie): ?>
           <tr>
             <td>
               <?php if (!empty($movie['posters'])): ?>
@@ -144,7 +164,6 @@ try {
     </table>
   </div>
 
-  <!-- Modal Structure -->
   <div id="imageModal" class="modal">
     <span class="close" onclick="closeModal()">&times;</span>
     <img class="modal-content" id="modalImage">

@@ -1,0 +1,24 @@
+[2025-02-20 12:55:47] ERROR: Error: Movie name cannot be empty.
+[2025-02-20 13:01:51] ERROR: Error: Movie name cannot be empty.
+[2025-02-20 15:26:48] ERROR: Error: Poster not found.
+[2025-02-20 15:26:57] ERROR: Error: Poster not found.
+[2025-02-20 15:42:08] ERROR: Error: Rating must be a number between 0 and 10.
+[2025-02-20 15:58:44] ERROR: Error: Movie not found.
+[2025-02-20 15:58:46] ERROR: Error: Movie not found.
+[2025-02-20 16:07:47] Error: Movie not found. in /var/www/html/project2/edit_movie.php on line 40
+[2025-02-20 16:08:08] Error: Movie not found. in /var/www/html/project2/edit_movie.php on line 40
+[2025-02-20 16:10:10] Error: Movie not found. in /var/www/html/project2/edit_movie.php on line 40
+[2025-02-20 16:10:59] Error: Movie not found. in /var/www/html/project2/edit_movie.php on line 40
+[2025-02-20 16:11:31] ERROR: Error: Rating must be a number between 0 and 10.
+[2025-02-20 17:53:25] ERROR: Error: Movie name cannot be empty. in /var/www/html/project2/add_movie.php on line 49
+[2025-02-20 17:53:46] ERROR: Error: Movie name cannot be empty.
+[2025-02-20 17:54:51] ERROR: Error: Movie name cannot be empty.
+[2025-02-21 12:24:40] ERROR: Error: User not found.
+[2025-02-21 12:25:12] ERROR: Error: User not found.
+[2025-02-21 12:34:03] ERROR: Error: User not found.
+[2025-02-21 12:45:59] ERROR: Error: User not found.
+
+[2025-02-21 14:34:36] ERROR: Error: User not found.
+[2025-02-21 14:59:23] Error: User not found. in /var/www/html/php_database/edit_movie.php on line 32
+[2025-02-21 15:36:18] Error: User not found. in /var/www/html/php_database/edit_movie.php on line 32
+
