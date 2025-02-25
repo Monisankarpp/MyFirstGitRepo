@@ -7,7 +7,7 @@ $uploadDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
 include_once "db_connection.php";
 
 if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
+  header("Location: login.php");
   exit();
 }
 

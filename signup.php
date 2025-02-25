@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       if ($stmt->execute()) {
         // Redirect to login page
-        header("Location: index.php");
+        header("Location: login.php");
         exit();
       } else {
         $errorMessages['general'] = "Error: Unable to register user.";
@@ -80,24 +80,24 @@ $conn->close();
 
     <form method="POST" onsubmit="return validateForm()">
       <input type="text" name="username" id="username" placeholder="Username"
-        value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" oninput="validateForm()">
+        value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
       <p class="error" id="usernameError"><?php echo $errorMessages['username'] ?? ''; ?></p>
 
       <input type="email" name="email" id="email" placeholder="Email"
-        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" oninput="validateForm()">
+        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
       <p class="error" id="emailError"><?php echo $errorMessages['email'] ?? ''; ?></p>
 
       <input type="tel" name="phone" id="phone" placeholder="Phone Number"
-        value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" maxlength="10" oninput="validateForm()">
+        value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" maxlength="10">
       <p class="error" id="phoneError"><?php echo $errorMessages['phone'] ?? ''; ?></p>
 
-      <input type="password" name="password" id="password" placeholder="Password" oninput="validateForm()">
+      <input type="password" name="password" id="password" placeholder="Password">
       <p class="error" id="passwordError"><?php echo $errorMessages['password'] ?? ''; ?></p>
 
       <button type="submit">Sign Up</button>
     </form>
 
-    <p>Already have an account? <a href="index.php">Login here</a></p>
+    <p>Already have an account? <a href="login.php">Login here</a></p>
   </div>
   <script src="JS/signup.js"></script>
 </body>

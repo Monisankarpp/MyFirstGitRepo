@@ -83,7 +83,7 @@ try {
     exit();
   }
 } catch (Exception $e) {
-  $error = $e->getMessage() . " at line " . $e->getLine();
+  $error = $e->getMessage() . " at line " . $e->getLine() . $e->getTraceAsString();
   logError($error);
 }
 $conn->close();
